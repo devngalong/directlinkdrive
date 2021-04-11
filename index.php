@@ -2,57 +2,65 @@
 error_reporting(0);
 include "curl_gd.php";
 
-if($_POST['submit'] != ""){
-	$url = $_POST['url'];
-	$linkdown = Drive($url);
-	$file = '[{"type": "video/mp4", "label": "HD", "file": "'.$linkdown.'"}]';
-    $iframex = '<textarea class="form-control" style="margin:10px;width: 97%;height: 80px;"><iframe src="http://yoursite.com/embed.php?url='.$url.'" width="640" height="360" frameborder="0" scrolling="no" allowfullscreen</iframe></textarea>'; 
+if (isset($_GET)) {
+   $id = $_GET['id'];
+   $iframeid = my_simple_crypt($id);
+   $linkdown = Drive("https://drive.google.com/file/d/$id/view");
+   $file = '[{"type": "video/mp4", "label": "HD", "file": "'.$linkdown.'"}]';
 } else {
-    $iframex = "";
+   die("Please provide ID.");
+}
+
+if($_POST['submit'] != ""){
+   $url = $_POST['url'];
+   $gid = get_drive_id($url);
+   $iframeid = my_simple_crypt($gid);
+   $linkdown = Drive($url);
+   $file = '[{"type": "video/mp4", "label": "HD", "file": "'.$linkdown.'"}]';
 }
 ?>
+
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Required meta tags -->
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<title>Google Drive Player Script</title>
-
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
-	<!-- Plyr.io Player -->
-	<link rel="stylesheet" href="https://cdn.plyr.io/3.3.12/plyr.css">
+	<meta charset="utf-8" />
+	<title>Embed google drive generator</title>
 </head>
 <body>
 
-	<main role="main" class="container">
-		<h1 class="mt-5 text-center">Google Drive Player Script</h1>
+	<!-- Docs styles -->
+	<link rel="stylesheet" href="https://cdn.plyr.io/2.0.13/demo.css">
+	<style>
+		.container {
+		  max-width: 800px;
+		  margin: 0 auto;
+		}
+	</style>
+
+	<div class="container">
 		<br />
-		<video poster="<?php echo $results['image']; ?>" id="player" playsinline controls>
-			<source src="<?php echo $results['file'];?>" type="<?php echo $results['type'];?>">
-		</video>
+		<form action="" method="POST">
+			<input type="text" size="80" name="url" value="https://drive.google.com/file/d/0ByaRd0R0Qyatcmw2dVhQS0NDU0U/view"/>
+			<input type="submit" value="GET" name="submit" />
+		</form>
+		<br/>
 
-		<br />
-		<strong>Embed: </strong>
-		<?php if($results['embed_id']){ echo '<textarea class="form-control">&lt;iframe src="'.base_url.'embed.php?id='.$results['embed_id'].'" width="640" height="360" frameborder="0" scrolling="no" allowfullscreen&gt;&lt;/iframe&gt;</textarea>';}?>
+		<div id="myElement">Paste the url and click the get button.</div>
 
-		<br />
-		<strong>JSON: </strong><a href="<?php echo base_url.'json.php?id='.$id;?>"><?php echo base_url.'json.php?id='.$id;?></a>
-		<div style="background-color: #e9ecef;">
-			<pre><code> <?php echo json_encode($results, JSON_PRETTY_PRINT);?>  </code></pre>
-		</div>
+		<div><?php if($iframeid){echo '<textarea style="margin:10px;width: 97%;height: 80px;">&lt;iframe src="/embed.php?url='.$iframeid.'" width="640" height="360" frameborder="0" scrolling="no" allowfullscreen&gt;&lt;/iframe&gt;</textarea>';}?></div>
+	</div>
 
-		<br /><br />
-  </main>
-
-  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-	<!-- Plyr JS -->
-	<script src="https://cdn.plyr.io/3.3.12/plyr.js"></script>
-	<script>const player = new Plyr('#player');</script>
+	<script src="https://content.jwplatform.com/libraries/DbXZPMBQ.js"></script>
+	<script type="text/javascript">
+		jwplayer("myElement").setup({
+			playlist: [{
+				"sources":<?php echo $file?>
+			}],
+			allowfullscreen: true,
+			width: '100%',
+			aspectratio: '16:9',
+		});
+	</script>
 
 </body>
 </html>
