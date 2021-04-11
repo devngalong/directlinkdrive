@@ -2,7 +2,7 @@
 	header('Content-Type: text/html');
 	include_once("drive.php");
 
-	$url = (!isset($_GET['id']) || !$_GET['id']) ? 'https://drive.google.com/file/d/0ByaRd0R0Qyatcmw2dVhQS0NDU0U/view' : $_GET['id'];
+	$url = (!isset($_GET['id']) || !$_GET['id']) ? 'https://drive.google.com/file/d/1xPvB0OoCfNIhx067VSPsv9CyuBzigHUD/view' : $_GET['id'];
 	if($url) {
 	  preg_match('@^(?:http.?://)?([^/]+)@i', $url, $matches);
 	  $host = $matches[1];
