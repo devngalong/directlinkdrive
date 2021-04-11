@@ -1,28 +1,58 @@
 <?php
-error_reporting(E_ERROR | E_PARSE);
-if(!function_exists('curl1'))
-require_once dirname(__FILE__).'/curl.class.php';
-function Drive($link) {
-	$url = urldecode($link);
-	$get = curl1($url);
+error_reporting(0);
+include "curl_gd.php";
 
-	$data = explode(',["fmt_stream_map","', $get);
-	$data = explode('"]', $data[1]);
-	$data = str_replace(array('\u003d', '\u0026'), array('=', '&'), $data[0]);
-	$data = explode(',', $data);
-	asort($data);
-	foreach($data as $list) {
-		$data2 = explode('|', $list);
-		if($data2[0] == 37) {$q1080p	.= '1080p=>'.preg_replace("/\/[^\/]+\.google\.com/","/redirector.googlevideo.com",$data2[1]).'|';}
-		if($data2[0] == 22) {$q720p	.= '720p=>'.preg_replace("/\/[^\/]+\.google\.com/","/redirector.googlevideo.com",$data2[1]).'|';}
-		if($data2[0] == 59) {$q480p	.= '480p=>'.preg_replace("/\/[^\/]+\.google\.com/","/redirector.googlevideo.com",$data2[1]).'|';}
-		if($data2[0] == 18) {$q360p	.= '360p=>'.preg_replace("/\/[^\/]+\.google\.com/","/redirector.googlevideo.com",$data2[1]).'|';}
-	}
-	$js = $q1080p.'<br />';
-	$js .= $q720p.'<br />';
-	$js .= $q480p.'<br />';
-	$js .= $q360p.'<br />';
-	return rtrim($js, '|<br />');
+if($_POST['submit'] != ""){
+	$url = $_POST['url'];
+	$linkdown = Drive($url);
+	$file = '[{"type": "video/mp4", "label": "HD", "file": "'.$linkdown.'"}]';
+    $iframex = '<textarea class="form-control" style="margin:10px;width: 97%;height: 80px;"><iframe src="http://yoursite.com/embed.php?url='.$url.'" width="640" height="360" frameborder="0" scrolling="no" allowfullscreen</iframe></textarea>'; 
+} else {
+    $iframex = "";
 }
+?>
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>Google Drive Player Script</title>
 
-echo Drive('https://drive.google.com/file/d/1xPvB0OoCfNIhx067VSPsv9CyuBzigHUD/preview');
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
+	<!-- Plyr.io Player -->
+	<link rel="stylesheet" href="https://cdn.plyr.io/3.3.12/plyr.css">
+</head>
+<body>
+
+	<main role="main" class="container">
+		<h1 class="mt-5 text-center">Google Drive Player Script</h1>
+		<br />
+		<video poster="<?php echo $results['image']; ?>" id="player" playsinline controls>
+			<source src="<?php echo $results['file'];?>" type="<?php echo $results['type'];?>">
+		</video>
+
+		<br />
+		<strong>Embed: </strong>
+		<?php if($results['embed_id']){ echo '<textarea class="form-control">&lt;iframe src="'.base_url.'embed.php?id='.$results['embed_id'].'" width="640" height="360" frameborder="0" scrolling="no" allowfullscreen&gt;&lt;/iframe&gt;</textarea>';}?>
+
+		<br />
+		<strong>JSON: </strong><a href="<?php echo base_url.'json.php?id='.$id;?>"><?php echo base_url.'json.php?id='.$id;?></a>
+		<div style="background-color: #e9ecef;">
+			<pre><code> <?php echo json_encode($results, JSON_PRETTY_PRINT);?>  </code></pre>
+		</div>
+
+		<br /><br />
+  </main>
+
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+	<!-- Plyr JS -->
+	<script src="https://cdn.plyr.io/3.3.12/plyr.js"></script>
+	<script>const player = new Plyr('#player');</script>
+
+</body>
+</html>
